@@ -71,3 +71,42 @@ edu_ca |>
   theme_void()
 ```
 
+```{r}
+#| message: false
+#| warning: false
+age_ca <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c(
+    median_age = "B01002_001",
+    population = "B01003_001"
+  ),
+  year = 2020,
+  geometry = FALSE,
+  show_call = FALSE
+)
+```
+
+```{r}
+age_ca |>
+  select(GEOID, NAME, variable, estimate) |>
+  pivot_wider(
+    names_from = variable,
+    values_from = estimate
+  ) |>
+  slice_max(order_by = population, n = 15) |>
+  mutate(NAME = str_remove(NAME, " County, California")) |>
+  ggplot(aes(x = median_age, y = reorder(NAME, median_age))) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Median Age in California's 15 Most Populous Counties",
+    x = "Median Age (years)",
+    y = NULL,
+    caption = "Source: 2016-2020 American Community Survey via tidycensus"
+  ) +
+  theme_minimal()
+```
+
+
+
+
