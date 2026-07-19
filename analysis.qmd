@@ -1,7 +1,7 @@
 ---
 title: "Analyzing US Census Data"
 format: html
-author: Anthony Gao
+author: Anthony Gao, Antigravity
 execute:
   echo: false
 ---
@@ -34,5 +34,40 @@ ggplot(income_tx, aes(fill = estimate)) +
     fill = "Median Income",
     caption = "Source: 2016-2020 American Community Survey, US Census Bureau"
   )
+```
+
+```{r}
+#| message: false
+#| cache: true
+edu_ca <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c(
+    "B15003_022",
+    "B15003_023",
+    "B15003_024",
+    "B15003_025"
+  ),
+  summary_var = "B15003_001",
+  year = 2020,
+  geometry = TRUE
+)
+```
+
+
+```{r}
+edu_ca |>
+  group_by(GEOID) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est)
+  ) |>
+  ggplot() +
+  geom_sf(aes(fill = percent)) +
+  scale_fill_viridis_c(option = "C", name = "% with degree") +
+  labs(
+    title = "Adults with a bachelor's degree or higher by county, California (2020)",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_void()
 ```
 
